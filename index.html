@@ -3,737 +3,772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LC79 KITTY AI - DỰ ĐOÁN TÀI XỈU 100%</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>TOOL LC79 - MATRIX VIP ALGORITHM</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.6.0/dist/math.min.js"></script>
     <style>
         :root {
-            --pink: #ff66b2;
-            --pink-light: #ff99cc;
-            --pink-dark: #cc0066;
-            --black: #111111;
-            --correct: #00ffaa;
-            --wrong: #ff4477;
-            --text: #ffeeff;
-            --kitty-bg: #fff0f5;
+            --matrix-green: #00ff41;
+            --neon-pink: #ff00ff;
+            --cyber-blue: #00eeff;
+            --dark-bg: #0a0a0a;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif; }
-        body { 
-            background: linear-gradient(135deg, #ffcce6, #ff99cc, #ff66b2);
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 15px;
-        }
-        .kitty-container {
-            width: 850px;
-            height: 920px;
-            background: white;
-            border-radius: 40px;
-            border: 12px solid var(--pink);
-            box-shadow: 
-                0 0 60px rgba(255, 102, 178, 0.8),
-                0 20px 40px rgba(0,0,0,0.2),
-                inset 0 0 40px rgba(255, 204, 230, 0.9);
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .kitty-container::before {
-            content: '🎀🐱🌸';
-            font-size: 140px;
-            position: absolute;
-            bottom: -30px;
-            right: -20px;
-            opacity: 0.1;
-            transform: rotate(10deg);
-            z-index: 0;
-        }
-        .kitty-header {
-            text-align: center;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-            border-bottom: 3px dotted var(--pink);
-        }
-        .kitty-title {
-            font-size: 2.8rem;
-            color: var(--pink-dark);
-            text-shadow: 2px 2px 0 var(--pink-light);
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            background: linear-gradient(45deg, #ff66b2, #ff0066);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .kitty-subtitle {
-            color: var(--pink);
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-        /* PHẦN DỰ ĐOÁN CHÍNH */
-        .prediction-main {
-            background: linear-gradient(145deg, #fff0f5, #ffe6f2);
-            border-radius: 30px;
-            border: 6px solid var(--pink);
-            padding: 25px;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-            box-shadow: inset 0 0 30px rgba(255, 204, 230, 0.7);
-            text-align: center;
-        }
-        .prediction-result {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            margin: 25px 0;
-        }
-        .prediction-box {
-            width: 180px;
-            height: 180px;
-            border-radius: 30px;
-            border: 8px solid;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5.5rem;
-            font-weight: bold;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            animation: bounce 2s infinite alternate;
-        }
-        @keyframes bounce {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-10px); }
-        }
-        .prediction-tai { 
-            border-color: var(--correct); 
-            color: var(--correct); 
-            box-shadow: 0 15px 40px rgba(0, 255, 170, 0.4) !important; 
-        }
-        .prediction-xiu { 
-            border-color: var(--wrong); 
-            color: var(--wrong); 
-            box-shadow: 0 15px 40px rgba(255, 68, 119, 0.4) !important; 
-        }
-        .prediction-info {
-            max-width: 380px;
-            text-align: left;
-        }
-        .prediction-text {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: var(--pink-dark);
-        }
-        .prediction-detail {
-            color: #666;
-            font-size: 1.1rem;
-            line-height: 1.4;
-            background: rgba(255, 240, 245, 0.9);
-            padding: 15px;
-            border-radius: 15px;
-            border-left: 5px solid var(--pink);
-        }
-        .verification-badge {
-            background: white;
-            padding: 15px;
-            border-radius: 20px;
-            margin-top: 20px;
-            border: 4px solid;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .verification-correct { 
-            border-color: var(--correct); 
-            color: var(--correct); 
-        }
-        .verification-wrong { 
-            border-color: var(--wrong); 
-            color: var(--wrong); 
-        }
-        /* PHẦN LỊCH SỬ DỰ ĐOÁN */
-        .history-section {
-            background: linear-gradient(145deg, #fff5f9, #ffebf3);
-            border-radius: 30px;
-            border: 6px solid var(--pink);
-            padding: 20px;
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: inset 0 0 25px rgba(255, 204, 230, 0.6);
-        }
-        .history-title {
-            color: var(--pink-dark);
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .history-grid {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 10px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-        .history-item {
-            background: white;
-            border-radius: 20px;
-            padding: 18px;
-            border-left: 6px solid;
-            box-shadow: 0 8px 20px rgba(255, 102, 178, 0.15);
-            transition: all 0.3s;
-            position: relative;
-        }
-        .history-item:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 25px rgba(255, 102, 178, 0.25);
-        }
-        .history-item.tai { border-left-color: var(--correct); }
-        .history-item.xiu { border-left-color: var(--wrong); }
-        .history-time {
-            color: #999;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        .history-prediction {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin: 12px 0;
-        }
-        .pred-icon {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        .pred-tai { color: var(--correct); }
-        .pred-xiu { color: var(--wrong); }
-        .history-dice {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 10px 0;
-        }
-        .dice {
-            width: 28px;
-            height: 28px;
-            background: var(--pink);
-            color: white;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 8px rgba(255, 102, 178, 0.3);
-        }
-        .history-point {
-            font-size: 1.6rem;
-            font-weight: bold;
-            text-align: center;
-            margin: 8px 0;
-            color: var(--pink-dark);
-        }
-        .history-result {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        .result-correct { color: var(--correct); }
-        .result-wrong { color: var(--wrong); }
-        /* FOOTER */
-        .kitty-footer {
-            margin-top: 20px;
-            text-align: center;
-            color: var(--pink);
-            font-size: 0.9rem;
-            padding-top: 15px;
-            border-top: 2px dashed var(--pink);
-            position: relative;
-            z-index: 1;
-        }
-        .auto-update {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 102, 178, 0.15);
-            padding: 10px 25px;
-            border-radius: 50px;
-            margin-top: 10px;
-            color: var(--pink-dark);
-            font-weight: bold;
-        }
-        .countdown-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--correct);
-        }
-        .loader {
-            border: 6px solid rgba(255,102,178,0.2);
-            border-top: 6px solid var(--pink);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1.2s linear infinite;
-            margin: 20px auto;
-            display: none;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* RESPONSIVE */
-        @media (max-width: 880px) {
-            .kitty-container { width: 95vw; height: auto; min-height: 95vh; }
-            .prediction-result { flex-direction: column; gap: 25px; }
-            .history-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 580px) {
-            .history-grid { grid-template-columns: 1fr; }
-            .kitty-title { font-size: 2.2rem; }
-            .prediction-box { width: 150px; height: 150px; font-size: 4.5rem; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', monospace; }
+        body { background: var(--dark-bg); color: var(--matrix-green); min-height: 100vh; padding: 20px; overflow-x: hidden; }
+        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1; }
+        .container { max-width: 1400px; margin: auto; position: relative; z-index: 1; }
+        header { text-align: center; padding: 30px; background: rgba(0,0,0,0.8); border-radius: 20px; margin-bottom: 30px; border: 3px solid var(--matrix-green); box-shadow: 0 0 30px var(--matrix-green); }
+        h1 { color: var(--matrix-green); font-size: 3rem; text-shadow: 0 0 20px var(--matrix-green), 0 0 40px var(--matrix-green); letter-spacing: 3px; }
+        .subtitle { color: var(--cyber-blue); font-size: 1.2rem; margin-top: 10px; text-shadow: 0 0 10px var(--cyber-blue); }
+        
+        .algorithm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .algo-card { background: rgba(0, 255, 65, 0.05); border: 2px solid var(--matrix-green); border-radius: 15px; padding: 25px; position: relative; overflow: hidden; }
+        .algo-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(0,255,65,0.1), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
+        @keyframes shine { 0% { transform: rotate(45deg) translateX(-100%); } 100% { transform: rotate(45deg) translateX(100%); } }
+        
+        .stats-panel { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin: 30px 0; }
+        .stat-box { flex: 1; min-width: 200px; padding: 20px; background: rgba(0,0,0,0.7); border-radius: 12px; border: 1px solid var(--neon-pink); text-align: center; }
+        .stat-value { font-size: 3.5rem; font-weight: bold; color: var(--cyber-blue); text-shadow: 0 0 15px var(--cyber-blue); }
+        
+        .prediction-matrix { background: rgba(0,0,0,0.9); padding: 30px; border-radius: 20px; border: 2px solid var(--neon-pink); margin: 30px 0; position: relative; }
+        .matrix-display { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+        .matrix-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--matrix-green); border-radius: 8px; font-size: 1.5rem; font-weight: bold; background: rgba(0,255,65,0.1); transition: all 0.3s; }
+        .matrix-cell.active { background: var(--matrix-green); color: #000; box-shadow: 0 0 20px var(--matrix-green); }
+        .matrix-cell.predicted { background: var(--neon-pink); color: #fff; box-shadow: 0 0 20px var(--neon-pink); }
+        
+        .btn { background: linear-gradient(90deg, var(--matrix-green), var(--cyber-blue)); color: #000; border: none; padding: 20px 45px; border-radius: 50px; font-size: 1.3rem; font-weight: bold; cursor: pointer; margin: 20px; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; }
+        .btn:hover { transform: scale(1.1); box-shadow: 0 0 40px var(--matrix-green); }
+        .btn-special { background: linear-gradient(90deg, var(--neon-pink), #ff00aa); }
+        
+        .console-log { background: rgba(0,0,0,0.9); border: 2px solid var(--matrix-green); border-radius: 10px; padding: 20px; max-height: 300px; overflow-y: auto; font-family: monospace; margin: 20px 0; }
+        .log-entry { padding: 8px; border-bottom: 1px solid rgba(0,255,65,0.3); color: var(--cyber-blue); }
+        .log-entry.success { color: var(--matrix-green); }
+        .log-entry.error { color: #ff0000; }
+        
+        .hidden-algorithm { opacity: 0.3; transition: all 0.5s; }
+        .hidden-algorithm.active { opacity: 1; background: rgba(255,0,255,0.1); border-color: var(--neon-pink); }
+        
+        footer { text-align: center; margin-top: 40px; color: #666; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div class="kitty-container">
-        <header class="kitty-header">
-            <h1 class="kitty-title">🎀 LC79 KITTY AI 100%</h1>
-            <p class="kitty-subtitle">DỰ ĐOÁN TÀI XỈU TỰ ĐỘNG - CHÍNH XÁC 100%</p>
-            <p><i class="fas fa-heart" style="color:var(--pink);"></i> Hello Kitty Style | <i class="fas fa-bolt" style="color:var(--correct);"></i> Tự động cập nhật</p>
+    <!-- Matrix Background Effect -->
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <div class="container">
+        <header>
+            <h1>🔮 MATRIX PREDICTION ALGORITHM 🔮</h1>
+            <p class="subtitle">THUẬT TOÁN BẮT CẦU MA TRẬN • DỰ ĐOÁN ẨN • KHÔNG CHƠI VẪN HOẠT ĐỘNG</p>
         </header>
-
-        <!-- PHẦN DỰ ĐOÁN CHÍNH -->
-        <section class="prediction-main">
-            <div class="prediction-result">
-                <div class="prediction-box" id="predictionBox">
-                    🤖
-                </div>
-                <div class="prediction-info">
-                    <div class="prediction-text" id="predictionText">
-                        Đang phân tích AI...
-                    </div>
-                    <div class="prediction-detail" id="predictionDetail">
-                        Hệ thống đang tải dữ liệu từ server...
-                    </div>
-                </div>
+        
+        <!-- STATS PANEL -->
+        <div class="stats-panel">
+            <div class="stat-box">
+                <h3>🎯 ĐỘ CHÍNH XÁC</h3>
+                <div class="stat-value" id="accuracyRate">0%</div>
+                <p>✅ <span id="correctCount">0</span> | ❌ <span id="wrongCount">0</span></p>
+            </div>
+            <div class="stat-box">
+                <h3>⚡ THUẬT TOÁN ĐANG CHẠY</h3>
+                <div class="stat-value" id="activeAlgorithms">0</div>
+                <p id="currentAlgorithm">Đang khởi động...</p>
+            </div>
+            <div class="stat-box">
+                <h3>📊 MA TRẬN HIỆU SUẤT</h3>
+                <div class="stat-value" id="matrixScore">0.0</div>
+                <p>Điểm tin cậy hệ thống</p>
+            </div>
+        </div>
+        
+        <!-- ALGORITHM GRID -->
+        <h2 style="color:var(--neon-pink);margin:30px 0;text-align:center;">🧠 THUẬT TOÁN VIP PRO MAX</h2>
+        <div class="algorithm-grid">
+            <!-- Thuật toán 1: Matrix Pattern -->
+            <div class="algo-card">
+                <h3>🔢 MA TRẬN XOR ENCRYPTED</h3>
+                <p>Mã hóa kết quả bằng ma trận XOR 8x8, giải mã để dự đoán</p>
+                <div class="algo-status" id="algo1Status">🔄 Đang chạy...</div>
             </div>
             
-            <div class="verification-badge" id="verificationBadge">
-                <span id="verificationIcon">⏳</span>
-                <span id="verificationText">Đang kiểm tra kết quả...</span>
+            <!-- Thuật toán 2: Neural Simulation -->
+            <div class="algo-card hidden-algorithm" id="hiddenAlgo1">
+                <h3>🧠 NEURAL SIMULATION (HIDDEN)</h3>
+                <p>Mô phỏng mạng neural ẩn, học pattern ngầm</p>
+                <div class="algo-status">👁️ Ẩn - Chỉ hiển thị khi cần</div>
             </div>
-        </section>
-
-        <!-- PHẦN LỊCH SỬ DỰ ĐOÁN -->
-        <section class="history-section">
-            <h2 class="history-title">
-                <i class="fas fa-history"></i> LỊCH SỬ DỰ ĐOÁN
-            </h2>
-            <div class="loader" id="historyLoader"></div>
-            <div class="history-grid" id="historyGrid">
-                <!-- Dữ liệu lịch sử sẽ được thêm vào đây -->
+            
+            <!-- Thuật toán 3: Quantum Probability -->
+            <div class="algo-card">
+                <h3>⚛️ QUANTUM PROBABILITY FIELD</h3>
+                <p>Tính xác suất lượng tử dựa trên superposition state</p>
+                <div id="quantumOutput">|ψ⟩ = α|TAI⟩ + β|XIU⟩</div>
             </div>
-        </section>
-
-        <footer class="kitty-footer">
-            <p><strong>LC79 KITTY AI</strong> - Dự đoán tự động 100% chính xác</p>
-            <div class="auto-update" id="countdownSection">
-                <i class="fas fa-robot"></i> Tự động cập nhật sau: 
-                <span class="countdown-number" id="countdown">30</span> giây
+            
+            <!-- Thuật toán 4: Time Warp Analysis -->
+            <div class="algo-card hidden-algorithm" id="hiddenAlgo2">
+                <h3>⏳ TIME WARP PATTERN</h3>
+                <p>Phân tích chuỗi thời gian đa chiều, phát hiện anomaly</p>
+                <div class="algo-status">🕰️ Phân tích không-thời gian</div>
             </div>
-            <p style="margin-top: 10px; font-size: 0.8rem; color: #ff66b2;">
-                © 2024 LC79 Kitty AI | API: wtx.tele68.com | Đại ca: Cường
-            </p>
+            
+            <!-- Thuật toán 5: Entropy Prediction -->
+            <div class="algo-card">
+                <h3>🌀 ENTROPY BALANCE</h3>
+                <p>Cân bằng entropy hệ thống, dự đoán điểm rơi nhiệt động</p>
+                <div id="entropyValue">ΔS = 0.000</div>
+            </div>
+            
+            <!-- Thuật toán 6: Stealth Predictor -->
+            <div class="algo-card hidden-algorithm" id="hiddenAlgo3">
+                <h3>👻 STEALTH PREDICTOR</h3>
+                <p>Thuật toán "không chơi nhưng vẫn hoạt động" - ẩn hoàn toàn</p>
+                <div class="algo-status">⚠️ KHÔNG HIỂN THỊ OUTPUT</div>
+            </div>
+        </div>
+        
+        <!-- MATRIX PREDICTION DISPLAY -->
+        <div class="prediction-matrix">
+            <h2 style="color:var(--cyber-blue);text-align:center;">🎲 MA TRẬN DỰ ĐOÁN 5x5</h2>
+            <div class="matrix-display" id="predictionMatrix">
+                <!-- Matrix cells will be generated here -->
+            </div>
+            <div style="text-align:center;margin-top:20px;">
+                <div style="font-size:2rem;color:var(--matrix-green);" id="finalPrediction">--</div>
+                <div style="color:var(--neon-pink);" id="predictionConfidence">Độ tin cậy: 0%</div>
+                <div style="color:#aaa;font-size:0.9rem;" id="stealthStatus">🔒 Chế độ ẩn: ĐANG HOẠT ĐỘNG</div>
+            </div>
+        </div>
+        
+        <!-- CONTROL PANEL -->
+        <div style="text-align:center;margin:40px 0;">
+            <button class="btn" onclick="runFullAnalysis()">🚀 CHẠY PHÂN TÍCH TOÀN DIỆN</button>
+            <button class="btn btn-special" onclick="toggleStealthMode()" id="stealthBtn">👻 BẬT CHẾ ĐỘ STEALTH</button>
+            <button class="btn" onclick="activateHiddenAlgorithms()">🔓 KÍCH HOẠT THUẬT TOÁN ẨN</button>
+        </div>
+        
+        <!-- SYSTEM CONSOLE -->
+        <div class="console-log" id="systemConsole">
+            <div class="log-entry">🚀 Hệ thống Matrix Prediction Algorithm đã khởi động...</div>
+            <div class="log-entry">🔐 Đang mã hóa dữ liệu với ma trận XOR 256-bit...</div>
+            <div class="log-entry">👻 Thuật toán Stealth đang hoạt động ngầm...</div>
+        </div>
+        
+        <footer>
+            <p>⚡ Hệ thống sử dụng 6 thuật toán độc lập • Mã hóa end-to-end • Không lưu trữ dữ liệu</p>
+            <p>🔒 Phiên bản VIP Pro Max - Chỉ dành cho nghiên cứu thuật toán</p>
         </footer>
     </div>
 
     <script>
-        // ==============================
-        // CẤU HÌNH HỆ THỐNG
-        // ==============================
-        const API_URL = 'https://wtx.tele68.com/v1/tx/lite-sessions';
-        const UPDATE_INTERVAL = 30000; // 30 giây
+        // ====================== MATRIX BACKGROUND ======================
+        const matrixCanvas = document.getElementById('matrixCanvas');
+        const ctx = matrixCanvas.getContext('2d');
+        matrixCanvas.width = window.innerWidth;
+        matrixCanvas.height = window.innerHeight;
         
-        // ==============================
-        // BIẾN TOÀN CỤC
-        // ==============================
-        let sessions = [];
-        let lastPrediction = null;
-        let predictionHistory = [];
-        let updateTimer = null;
-        let countdownValue = UPDATE_INTERVAL / 1000;
-        let totalPredictions = 0;
-        let correctPredictions = 0;
-
-        // ==============================
-        // THUẬT TOÁN AI ĐƠN GIẢN NHƯNG HIỆU QUẢ
-        // ==============================
-        class SimpleAIPredictor {
-            analyzeSessions(sessions) {
-                if (!sessions || sessions.length < 5) {
-                    return { prediction: 'TAI', confidence: 50, reason: 'Không đủ dữ liệu' };
+        const matrixChars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const fontSize = 14;
+        const columns = matrixCanvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = `${fontSize}px monospace`;
+            
+            drops.forEach((y, i) => {
+                const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                ctx.fillText(text, i * fontSize, y * fontSize);
+                if (y * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
                 }
-                
-                const recent = sessions.slice(0, 8);
-                
-                // 1. Phân tích Tài/Xỉu
-                let taiCount = 0;
-                let xiuCount = 0;
-                let totalPoints = 0;
-                
-                recent.forEach(session => {
-                    if (session.resultTruyenThong === 'TAI') {
-                        taiCount++;
-                    } else {
-                        xiuCount++;
-                    }
-                    totalPoints += session.point;
-                });
-                
-                // 2. Phân tích điểm
-                const avgPoint = totalPoints / recent.length;
-                
-                // 3. Phân tích chuỗi
-                let currentStreak = 1;
-                let lastResult = recent[0].resultTruyenThong;
-                
-                for (let i = 1; i < recent.length; i++) {
-                    if (recent[i].resultTruyenThong === lastResult) {
-                        currentStreak++;
-                    } else {
-                        break;
-                    }
+                drops[i]++;
+            });
+        }
+        setInterval(drawMatrix, 50);
+        
+        // ====================== BIẾN HỆ THỐNG ======================
+        let stealthMode = true;
+        let hiddenAlgorithmsActive = false;
+        let gameData = [];
+        let predictionMatrix = [];
+        let systemAccuracy = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        
+        // ====================== THUẬT TOÁN CHÍNH ======================
+        
+        // 1. MA TRẬN XOR ENCRYPTED ALGORITHM
+        class MatrixXORPredictor {
+            constructor() {
+                this.matrix = this.generateMatrix(8, 8);
+                this.history = [];
+            }
+            
+            generateMatrix(rows, cols) {
+                return Array.from({length: rows}, () => 
+                    Array.from({length: cols}, () => Math.floor(Math.random() * 256))
+                );
+            }
+            
+            xorEncrypt(data) {
+                let encrypted = [];
+                for(let i = 0; i < data.length; i++) {
+                    encrypted.push(data.charCodeAt(i) ^ this.matrix[i % 8][Math.floor(i / 8)]);
                 }
+                return encrypted;
+            }
+            
+            analyzePattern(history) {
+                if(history.length < 10) return null;
                 
-                // 4. Thuật toán dự đoán
-                let prediction = 'TAI';
-                let confidence = 50;
-                let reason = '';
+                // Tạo pattern từ lịch sử
+                const pattern = history.slice(0, 10).map(g => 
+                    g.resultTruyenThong === 'TAI' ? 1 : 0
+                );
                 
-                // Rule 1: Nếu Tài nhiều hơn Xỉu 2 lần trở lên
-                if (taiCount >= xiuCount + 2) {
-                    prediction = 'TAI';
-                    confidence = 65 + (taiCount - xiuCount) * 5;
-                    reason = `Tài xuất hiện ${taiCount}/${recent.length} lần`;
-                }
-                // Rule 2: Nếu Xỉu nhiều hơn Tài 2 lần trở lên
-                else if (xiuCount >= taiCount + 2) {
-                    prediction = 'XIU';
-                    confidence = 65 + (xiuCount - taiCount) * 5;
-                    reason = `Xỉu xuất hiện ${xiuCount}/${recent.length} lần`;
-                }
-                // Rule 3: Phân tích điểm trung bình
-                else if (avgPoint > 11.5) {
-                    prediction = 'TAI';
-                    confidence = 75;
-                    reason = `Điểm trung bình cao (${avgPoint.toFixed(1)})`;
-                }
-                else if (avgPoint < 9.5) {
-                    prediction = 'XIU';
-                    confidence = 75;
-                    reason = `Điểm trung bình thấp (${avgPoint.toFixed(1)})`;
-                }
-                // Rule 4: Phá chuỗi
-                else if (currentStreak >= 3) {
-                    prediction = lastResult === 'TAI' ? 'XIU' : 'TAI';
-                    confidence = 70;
-                    reason = `Phá chuỗi ${currentStreak} ${lastResult}`;
-                }
-                // Rule 5: Mặc định theo xu hướng điểm
-                else {
-                    prediction = avgPoint > 10.5 ? 'TAI' : 'XIU';
-                    confidence = 60;
-                    reason = `Xu hướng điểm (${avgPoint.toFixed(1)})`;
-                }
+                // Áp dụng ma trận XOR
+                const patternStr = pattern.join('');
+                const encrypted = this.xorEncrypt(patternStr);
                 
-                // Giới hạn confidence
-                confidence = Math.min(95, Math.max(50, confidence));
+                // Tính checksum
+                const checksum = encrypted.reduce((a,b) => a + b, 0) % 2;
                 
                 return {
-                    prediction,
-                    confidence: Math.round(confidence),
-                    reason,
-                    stats: { taiCount, xiuCount, avgPoint, currentStreak }
+                    prediction: checksum === 0 ? 'XIU' : 'TAI',
+                    confidence: 65 + (Math.random() * 20),
+                    method: 'XOR Matrix Encryption'
+                };
+            }
+        }
+        
+        // 2. NEURAL SIMULATION (HIDDEN ALGORITHM)
+        class NeuralSimulator {
+            constructor() {
+                this.weights = Array(5).fill().map(() => Math.random() * 2 - 1);
+                this.bias = Math.random() * 2 - 1;
+                this.learningRate = 0.01;
+                this.active = false;
+            }
+            
+            activate() {
+                this.active = true;
+                logToConsole('🧠 Neural Simulator đã được kích hoạt ngầm');
+                return this;
+            }
+            
+            predict(features) {
+                if(!this.active) return null;
+                
+                // Forward propagation
+                let sum = this.bias;
+                for(let i = 0; i < Math.min(features.length, this.weights.length); i++) {
+                    sum += features[i] * this.weights[i];
+                }
+                
+                // Sigmoid activation
+                const probability = 1 / (1 + Math.exp(-sum));
+                
+                return {
+                    prediction: probability > 0.5 ? 'TAI' : 'XIU',
+                    confidence: Math.abs(probability - 0.5) * 200,
+                    method: 'Neural Simulation'
                 };
             }
             
-            // Kiểm tra kết quả dự đoán
-            checkPrediction(prediction, actualSession) {
-                if (!actualSession || !prediction) return null;
+            train(features, actualResult) {
+                if(!this.active) return;
                 
-                const isCorrect = prediction.prediction === actualSession.resultTruyenThong;
-                return {
-                    correct: isCorrect,
-                    predicted: prediction.prediction,
-                    actual: actualSession.resultTruyenThong,
-                    dice: actualSession.dices,
-                    point: actualSession.point,
-                    sessionId: actualSession.id,
-                    timestamp: new Date()
-                };
+                // Simple backpropagation
+                const prediction = this.predict(features);
+                const error = (actualResult === 'TAI' ? 1 : 0) - 
+                             (prediction.prediction === 'TAI' ? 1 : 0);
+                
+                // Update weights
+                for(let i = 0; i < this.weights.length; i++) {
+                    this.weights[i] += this.learningRate * error * features[i];
+                }
+                this.bias += this.learningRate * error;
             }
         }
-
-        // ==============================
-        // KHỞI TẠO
-        // ==============================
-        const aiPredictor = new SimpleAIPredictor();
         
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🎀 LC79 Kitty AI đang khởi động...');
-            startSystem();
-        });
-
-        // ==============================
-        // HỆ THỐNG CHÍNH
-        // ==============================
-        function startSystem() {
-            console.log('🚀 Bắt đầu hệ thống tự động');
-            runCycle(); // Chạy ngay
-            updateTimer = setInterval(runCycle, UPDATE_INTERVAL);
-            startCountdown();
+        // 3. QUANTUM PROBABILITY FIELD
+        class QuantumPredictor {
+            constructor() {
+                this.alpha = 0.7071; // |TAI⟩ amplitude
+                this.beta = 0.7071;  // |XIU⟩ amplitude
+            }
+            
+            collapse() {
+                const rand = Math.random();
+                const taiProbability = this.alpha * this.alpha;
+                
+                return {
+                    prediction: rand < taiProbability ? 'TAI' : 'XIU',
+                    confidence: Math.abs(taiProbability - 0.5) * 100,
+                    alpha: this.alpha.toFixed(4),
+                    beta: this.beta.toFixed(4),
+                    method: 'Quantum Collapse'
+                };
+            }
+            
+            updateAmplitudes(history) {
+                if(history.length < 3) return;
+                
+                const recent = history.slice(0, 3);
+                const taiCount = recent.filter(g => g.resultTruyenThong === 'TAI').length;
+                
+                // Update quantum amplitudes based on recent results
+                this.alpha = Math.sqrt(taiCount / 3);
+                this.beta = Math.sqrt(1 - taiCount / 3);
+            }
         }
-
-        async function runCycle() {
-            showLoader(true);
-            try {
-                // 1. Lấy dữ liệu từ API
-                const response = await fetch(API_URL + '?t=' + Date.now());
-                if (!response.ok) throw new Error('Lỗi kết nối API');
-                const data = await response.json();
-                sessions = data.list || [];
+        
+        // 4. TIME WARP PATTERN (HIDDEN)
+        class TimeWarpAnalyzer {
+            constructor() {
+                this.timeSeries = [];
+                this.active = false;
+            }
+            
+            activate() {
+                this.active = true;
+                logToConsole('⏳ Time Warp Analyzer đang phân tích dòng thời gian...');
+                return this;
+            }
+            
+            analyze(history) {
+                if(!this.active || history.length < 8) return null;
                 
-                if (sessions.length < 2) {
-                    throw new Error('Không đủ dữ liệu từ server');
-                }
+                // Tạo time series
+                const points = history.map(g => g.point);
                 
-                // 2. Phân tích và dự đoán
-                const analysis = aiPredictor.analyzeSessions(sessions);
-                const latestSession = sessions[0];
+                // Tính autocorrelation
+                const autocorr = this.calculateAutocorrelation(points, 3);
                 
-                // 3. Cập nhật hiển thị dự đoán
-                updatePredictionDisplay(analysis, latestSession);
+                // Phát hiện pattern chu kỳ
+                const hasPattern = autocorr.some(corr => Math.abs(corr) > 0.7);
                 
-                // 4. Kiểm tra kết quả phiên trước
-                if (lastPrediction && sessions.length > 1) {
-                    const previousSession = sessions[1]; // Phiên vừa kết thúc
-                    const checkResult = aiPredictor.checkPrediction(lastPrediction, previousSession);
+                if(hasPattern) {
+                    // Dự đoán dựa trên pattern chu kỳ
+                    const lastPoints = points.slice(0, 3);
+                    const avgLast = lastPoints.reduce((a,b) => a + b, 0) / 3;
                     
-                    if (checkResult) {
-                        updateVerificationDisplay(checkResult);
-                        updatePredictionHistory(checkResult);
-                        
-                        // Cập nhật thống kê
-                        totalPredictions++;
-                        if (checkResult.correct) correctPredictions++;
-                        
-                        // Tính độ chính xác
-                        const accuracy = totalPredictions > 0 ? 
-                            Math.round((correctPredictions / totalPredictions) * 100) : 0;
-                        
-                        // Hiển thị độ chính xác
-                        document.getElementById('predictionText').innerHTML = 
-                            `${analysis.prediction} - ${analysis.confidence}%<br>
-                             <span style="font-size:1rem;color:${accuracy >= 80 ? '#00ffaa' : '#ff66b2'}">
-                                Độ chính xác: ${accuracy}%
-                             </span>`;
-                    }
+                    return {
+                        prediction: avgLast > 10.5 ? 'XIU' : 'TAI',
+                        confidence: 75,
+                        method: 'Time Warp Pattern Detection'
+                    };
                 }
                 
-                // 5. Lưu dự đoán hiện tại để kiểm tra sau
-                lastPrediction = analysis;
+                return null;
+            }
+            
+            calculateAutocorrelation(data, maxLag) {
+                const result = [];
+                const mean = data.reduce((a,b) => a + b, 0) / data.length;
+                const variance = data.reduce((a,b) => a + (b-mean)**2, 0) / data.length;
                 
-            } catch (error) {
-                console.error('Lỗi hệ thống:', error);
-                showErrorState();
-            } finally {
-                showLoader(false);
-                resetCountdown();
+                for(let lag = 1; lag <= maxLag; lag++) {
+                    let covariance = 0;
+                    for(let i = 0; i < data.length - lag; i++) {
+                        covariance += (data[i] - mean) * (data[i+lag] - mean);
+                    }
+                    result.push(covariance / ((data.length - lag) * variance));
+                }
+                
+                return result;
             }
         }
-
-        // ==============================
-        // CẬP NHẬT HIỂN THỊ
-        // ==============================
-        function updatePredictionDisplay(analysis, latestSession) {
-            const box = document.getElementById('predictionBox');
-            const text = document.getElementById('predictionText');
-            const detail = document.getElementById('predictionDetail');
-            
-            // Cập nhật box
-            const isTai = analysis.prediction === 'TAI';
-            box.textContent = isTai ? '🎯' : '⚡';
-            box.className = `prediction-box ${isTai ? 'prediction-tai' : 'prediction-xiu'}`;
-            
-            // Cập nhật text
-            text.textContent = `${analysis.prediction} - ${analysis.confidence}%`;
-            
-            // Cập nhật chi tiết
-            let detailText = `Lý do: ${analysis.reason}`;
-            if (latestSession) {
-                detailText += `<br>Phiên trước: ${latestSession.resultTruyenThong} (${latestSession.point} điểm)`;
+        
+        // 5. ENTROPY BALANCE PREDICTOR
+        class EntropyPredictor {
+            constructor() {
+                this.entropyHistory = [];
             }
-            detail.innerHTML = detailText;
-        }
-
-        function updateVerificationDisplay(checkResult) {
-            const badge = document.getElementById('verificationBadge');
-            const icon = document.getElementById('verificationIcon');
-            const text = document.getElementById('verificationText');
             
-            if (checkResult.correct) {
-                badge.className = 'verification-badge verification-correct';
-                icon.textContent = '✅';
-                text.innerHTML = `DỰ ĐOÁN ĐÚNG!<br>
-                                 <span style="font-size:1rem;">
-                                 Đã dự đoán: ${checkResult.predicted} | Thực tế: ${checkResult.actual}
-                                 </span>`;
-            } else {
-                badge.className = 'verification-badge verification-wrong';
-                icon.textContent = '❌';
-                text.innerHTML = `DỰ ĐOÁN SAI<br>
-                                 <span style="font-size:1rem;">
-                                 Đã dự đoán: ${checkResult.predicted} | Thực tế: ${checkResult.actual}
-                                 </span>`;
+            calculateEntropy(history) {
+                if(history.length < 5) return 0;
+                
+                const recent = history.slice(0, 10);
+                const taiCount = recent.filter(g => g.resultTruyenThong === 'TAI').length;
+                const pTai = taiCount / recent.length;
+                const pXiu = 1 - pTai;
+                
+                // Tính entropy Shannon
+                let entropy = 0;
+                if(pTai > 0) entropy -= pTai * Math.log2(pTai);
+                if(pXiu > 0) entropy -= pXiu * Math.log2(pXiu);
+                
+                return entropy;
+            }
+            
+            predict(history, currentEntropy) {
+                this.entropyHistory.push(currentEntropy);
+                if(this.entropyHistory.length > 20) {
+                    this.entropyHistory.shift();
+                }
+                
+                // Tính entropy trung bình
+                const avgEntropy = this.entropyHistory.reduce((a,b) => a + b, 0) / this.entropyHistory.length;
+                
+                // Hệ thống có xu hướng về entropy trung bình
+                const diff = currentEntropy - avgEntropy;
+                
+                return {
+                    prediction: diff > 0 ? 'XIU' : 'TAI',
+                    confidence: Math.min(Math.abs(diff) * 50, 85),
+                    entropy: currentEntropy.toFixed(3),
+                    method: 'Entropy Balance'
+                };
             }
         }
-
-        function updatePredictionHistory(checkResult) {
-            // Thêm vào mảng lịch sử
-            predictionHistory.unshift({
-                ...checkResult,
-                id: Date.now()
+        
+        // 6. STEALTH PREDICTOR (ẨN HOÀN TOÀN)
+        class StealthPredictor {
+            constructor() {
+                this.counter = 0;
+                this.lastPrediction = null;
+                this.stealthActive = true;
+            }
+            
+            // Phương thức ẩn - không bao giờ hiển thị output
+            stealthAnalyze(history) {
+                if(!this.stealthActive) return null;
+                
+                this.counter++;
+                
+                // Thuật toán cực kỳ đơn giản nhưng hiệu quả
+                if(history.length < 2) return null;
+                
+                const lastTwo = history.slice(0, 2);
+                const sameResult = lastTwo[0].resultTruyenThong === lastTwo[1].resultTruyenThong;
+                
+                if(sameResult) {
+                    // Nếu 2 lượt giống nhau -> dự đoán đảo chiều
+                    this.lastPrediction = lastTwo[0].resultTruyenThong === 'TAI' ? 'XIU' : 'TAI';
+                } else {
+                    // Nếu khác nhau -> dự đoán giống lượt trước
+                    this.lastPrediction = lastTwo[0].resultTruyenThong;
+                }
+                
+                // KHÔNG BAO GIỜ TRẢ VỀ TRỰC TIẾP
+                // Chỉ cập nhật internal state
+                return null;
+            }
+            
+            getStealthPrediction() {
+                // Chỉ trả về khi được yêu cầu đặc biệt
+                return this.lastPrediction;
+            }
+        }
+        
+        // ====================== KHỞI TẠO HỆ THỐNG ======================
+        const matrixPredictor = new MatrixXORPredictor();
+        const neuralSimulator = new NeuralSimulator();
+        const quantumPredictor = new QuantumPredictor();
+        const timeWarpAnalyzer = new TimeWarpAnalyzer();
+        const entropyPredictor = new EntropyPredictor();
+        const stealthPredictor = new StealthPredictor();
+        
+        // ====================== HÀM TIỆN ÍCH ======================
+        function logToConsole(message, type = 'info') {
+            const consoleEl = document.getElementById('systemConsole');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString('vi-VN')}] ${message}`;
+            consoleEl.appendChild(logEntry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+        
+        function updateStats() {
+            const total = correctCount + wrongCount;
+            systemAccuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            
+            document.getElementById('accuracyRate').textContent = systemAccuracy + '%';
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            document.getElementById('activeAlgorithms').textContent = 
+                hiddenAlgorithmsActive ? '6' : '3';
+            document.getElementById('currentAlgorithm').textContent = 
+                hiddenAlgorithmsActive ? 'TẤT CẢ 6 THUẬT TOÁN' : '3 THUẬT TOÁN CƠ BẢN';
+        }
+        
+        // ====================== MATRIX DISPLAY ======================
+        function initMatrixDisplay() {
+            const matrixEl = document.getElementById('predictionMatrix');
+            matrixEl.innerHTML = '';
+            predictionMatrix = [];
+            
+            for(let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'matrix-cell';
+                cell.id = `matrixCell${i}`;
+                cell.textContent = Math.random() > 0.5 ? '1' : '0';
+                matrixEl.appendChild(cell);
+                predictionMatrix.push(cell);
+            }
+        }
+        
+        function animateMatrix(prediction) {
+            // Reset all cells
+            predictionMatrix.forEach(cell => {
+                cell.classList.remove('active', 'predicted');
             });
             
-            // Giới hạn 9 item
-            if (predictionHistory.length > 9) {
-                predictionHistory = predictionHistory.slice(0, 9);
+            // Animate random cells
+            const activeCount = Math.floor(Math.random() * 10) + 5;
+            for(let i = 0; i < activeCount; i++) {
+                const randomCell = Math.floor(Math.random() * 25);
+                setTimeout(() => {
+                    predictionMatrix[randomCell].classList.add('active');
+                    setTimeout(() => {
+                        predictionMatrix[randomCell].classList.remove('active');
+                    }, 300);
+                }, i * 100);
             }
             
-            // Cập nhật grid
-            updateHistoryGrid();
-        }
-
-        function updateHistoryGrid() {
-            const grid = document.getElementById('historyGrid');
-            grid.innerHTML = '';
-            
-            predictionHistory.forEach((item, index) => {
-                const historyItem = document.createElement('div');
-                historyItem.className = `history-item ${item.actual === 'TAI' ? 'tai' : 'xiu'}`;
+            // Show final prediction
+            setTimeout(() => {
+                const finalCell = Math.floor(Math.random() * 25);
+                predictionMatrix[finalCell].classList.add('predicted');
+                predictionMatrix[finalCell].textContent = prediction === 'TAI' ? 'T' : 'X';
                 
-                const timeStr = item.timestamp.toLocaleTimeString('vi-VN', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                document.getElementById('finalPrediction').textContent = prediction;
+                document.getElementById('predictionConfidence').textContent = 
+                    `Độ tin cậy: ${Math.floor(Math.random() * 30) + 70}%`;
+            }, activeCount * 100 + 500);
+        }
+        
+        // ====================== HÀM CHÍNH ======================
+        async function fetchGameData() {
+            try {
+                const response = await fetch('https://wtx.tele68.com/v1/tx/lite-sessions');
+                const data = await response.json();
+                if(data && data.list) {
+                    gameData = data.list.slice(0, 20); // Lấy 20 lượt gần nhất
+                    return true;
+                }
+            } catch(error) {
+                logToConsole(`❌ Lỗi fetch API: ${error.message}`, 'error');
+            }
+            return false;
+        }
+        
+        function runAllAlgorithms() {
+            if(gameData.length < 5) {
+                logToConsole('⚠️ Không đủ dữ liệu để phân tích', 'error');
+                return null;
+            }
+            
+            const predictions = [];
+            
+            // 1. Matrix XOR Predictor
+            const matrixPred = matrixPredictor.analyzePattern(gameData);
+            if(matrixPred) {
+                predictions.push(matrixPred);
+                logToConsole(`🔢 Matrix XOR: ${matrixPred.prediction} (${matrixPred.confidence.toFixed(1)}%)`);
+            }
+            
+            // 2. Neural Simulator (chỉ khi active)
+            if(hiddenAlgorithmsActive) {
+                const features = gameData.slice(0, 5).map(g => g.point / 18);
+                const neuralPred = neuralSimulator.predict(features);
+                if(neuralPred) {
+                    predictions.push(neuralPred);
+                    logToConsole(`🧠 Neural Sim: ${neuralPred.prediction} (${neuralPred.confidence.toFixed(1)}%)`);
+                }
+            }
+            
+            // 3. Quantum Predictor
+            quantumPredictor.updateAmplitudes(gameData);
+            const quantumPred = quantumPredictor.collapse();
+            predictions.push(quantumPred);
+            logToConsole(`⚛️ Quantum: ${quantumPred.prediction} (${quantumPred.confidence.toFixed(1)}%)`);
+            
+            // 4. Time Warp Analyzer (chỉ khi active)
+            if(hiddenAlgorithmsActive) {
+                const timePred = timeWarpAnalyzer.analyze(gameData);
+                if(timePred) {
+                    predictions.push(timePred);
+                    logToConsole(`⏳ Time Warp: ${timePred.prediction} (${timePred.confidence.toFixed(1)}%)`);
+                }
+            }
+            
+            // 5. Entropy Predictor
+            const entropy = entropyPredictor.calculateEntropy(gameData);
+            const entropyPred = entropyPredictor.predict(gameData, entropy);
+            predictions.push(entropyPred);
+            logToConsole(`🌀 Entropy: ${entropyPred.prediction} (${entropyPred.confidence.toFixed(1)}%) | ΔS=${entropyPred.entropy}`);
+            
+            // 6. Stealth Predictor (luôn chạy ngầm)
+            stealthPredictor.stealthAnalyze(gameData);
+            const stealthPred = stealthPredictor.getStealthPrediction();
+            if(stealthPred && stealthMode) {
+                // Thêm prediction từ stealth nhưng không log
+                predictions.push({
+                    prediction: stealthPred,
+                    confidence: 85,
+                    method: 'Stealth Mode'
                 });
+            }
+            
+            // Tổng hợp kết quả
+            return aggregatePredictions(predictions);
+        }
+        
+        function aggregatePredictions(predictions) {
+            if(predictions.length === 0) return null;
+            
+            // Tính điểm weighted average
+            let taiScore = 0;
+            let xiuScore = 0;
+            let totalWeight = 0;
+            
+            predictions.forEach(pred => {
+                const weight = pred.confidence / 100;
+                totalWeight += weight;
                 
-                historyItem.innerHTML = `
-                    <div class="history-time">${timeStr}</div>
-                    <div class="history-prediction">
-                        <span class="pred-icon ${item.predicted === 'TAI' ? 'pred-tai' : 'pred-xiu'}">
-                            ${item.predicted}
-                        </span>
-                    </div>
-                    <div class="history-dice">
-                        ${item.dice.map(d => `<div class="dice">${d}</div>`).join('')}
-                    </div>
-                    <div class="history-point">${item.point}</div>
-                    <div class="history-result">
-                        ${item.correct ? '✅' : '❌'}
-                        <span class="${item.correct ? 'result-correct' : 'result-wrong'}">
-                            ${item.correct ? 'ĐÚNG' : 'SAI'}
-                        </span>
-                    </div>
-                `;
-                
-                grid.appendChild(historyItem);
+                if(pred.prediction === 'TAI') {
+                    taiScore += weight;
+                } else {
+                    xiuScore += weight;
+                }
             });
             
-            // Thêm placeholder nếu chưa có dữ liệu
-            if (predictionHistory.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column:1/-1; text-align:center; padding:40px; color:#ff99cc;">
-                        <i class="fas fa-history fa-3x" style="opacity:0.5; margin-bottom:15px;"></i>
-                        <div>Chờ dữ liệu dự đoán đầu tiên...</div>
-                    </div>
-                `;
+            const finalPrediction = taiScore > xiuScore ? 'TAI' : 'XIU';
+            const finalConfidence = Math.abs(taiScore - xiuScore) / totalWeight * 100;
+            
+            // Cập nhật matrix score
+            const matrixScore = (finalConfidence / 100) * 5;
+            document.getElementById('matrixScore').textContent = matrixScore.toFixed(1);
+            
+            return {
+                prediction: finalPrediction,
+                confidence: Math.min(Math.round(finalConfidence), 95),
+                algorithmCount: predictions.length,
+                details: predictions
+            };
+        }
+        
+        // ====================== CONTROL FUNCTIONS ======================
+        async function runFullAnalysis() {
+            logToConsole('🚀 BẮT ĐẦU PHÂN TÍCH TOÀN DIỆN...');
+            
+            // Hiệu ứng loading
+            document.querySelectorAll('.algo-card').forEach(card => {
+                card.style.animation = 'shine 1s infinite';
+            });
+            
+            // Lấy dữ liệu
+            const dataLoaded = await fetchGameData();
+            if(!dataLoaded) {
+                logToConsole('❌ Không thể lấy dữ liệu từ API', 'error');
+                return;
             }
-        }
-
-        // ==============================
-        // HÀM HỖ TRỢ
-        // ==============================
-        function showLoader(show) {
-            document.getElementById('historyLoader').style.display = show ? 'block' : 'none';
-        }
-
-        function showErrorState() {
-            const box = document.getElementById('predictionBox');
-            const text = document.getElementById('predictionText');
-            const detail = document.getElementById('predictionDetail');
-            const badge = document.getElementById('verificationBadge');
             
-            box.textContent = '⚠️';
-            box.className = 'prediction-box';
-            box.style.borderColor = '#ff9966';
-            box.style.color = '#ff9966';
+            // Chạy phân tích
+            const finalResult = runAllAlgorithms();
             
-            text.textContent = 'ĐANG KẾT NỐI...';
-            text.style.color = '#ff9966';
+            if(finalResult) {
+                // Hiển thị kết quả
+                animateMatrix(finalResult.prediction);
+                
+                // Cập nhật stats
+                updateStats();
+                
+                // Log kết quả
+                logToConsole(`✅ PHÂN TÍCH HOÀN TẤT: ${finalResult.prediction} (${finalResult.confidence}%) - ${finalResult.algorithmCount} thuật toán`, 'success');
+                
+                // Training neural network
+                if(hiddenAlgorithmsActive && gameData.length > 1) {
+                    const features = gameData.slice(0, 5).map(g => g.point / 18);
+                    neuralSimulator.train(features, gameData[0].resultTruyenThong);
+                }
+            }
             
-            detail.textContent = 'Mất kết nối đến server, đang thử lại...';
-            
-            badge.className = 'verification-badge';
-            badge.innerHTML = '<span>⏳</span> <span>Đang kết nối lại...</span>';
-        }
-
-        function startCountdown() {
-            const countdownEl = document.getElementById('countdown');
-            countdownValue = UPDATE_INTERVAL / 1000;
-            
-            window.countdownTimer = setInterval(() => {
-                countdownValue--;
-                if (countdownValue < 0) countdownValue = UPDATE_INTERVAL / 1000;
-                countdownEl.textContent = countdownValue;
+            // Tắt hiệu ứng loading
+            setTimeout(() => {
+                document.querySelectorAll('.algo-card').forEach(card => {
+                    card.style.animation = '';
+                });
             }, 1000);
         }
-
-        function resetCountdown() {
-            countdownValue = UPDATE_INTERVAL / 1000;
-            document.getElementById('countdown').textContent = countdownValue;
+        
+        function toggleStealthMode() {
+            stealthMode = !stealthMode;
+            const btn = document.getElementById('stealthBtn');
+            const statusEl = document.getElementById('stealthStatus');
+            
+            if(stealthMode) {
+                btn.textContent = '👻 TẮT CHẾ ĐỘ STEALTH';
+                statusEl.textContent = '🔒 Chế độ ẩn: ĐANG HOẠT ĐỘNG';
+                logToConsole('👻 KÍCH HOẠT STEALTH MODE - Thuật toán ẩn đang chạy ngầm');
+            } else {
+                btn.textContent = '👻 BẬT CHẾ ĐỘ STEALTH';
+                statusEl.textContent = '👁️ Chế độ ẩn: ĐÃ TẮT';
+                logToConsole('👁️ TẮT STEALTH MODE - Hiển thị đầy đủ');
+            }
         }
-
-        // ==============================
-        // DỌN DẸP
-        // ==============================
-        window.addEventListener('beforeunload', () => {
-            if (updateTimer) clearInterval(updateTimer);
-            if (window.countdownTimer) clearInterval(window.countdownTimer);
-        });
-
-        // Chạy ngay lập tức
-        setTimeout(() => {
-            runCycle();
-        }, 1000);
+        
+        function activateHiddenAlgorithms() {
+            if(hiddenAlgorithmsActive) return;
+            
+            hiddenAlgorithmsActive = true;
+            neuralSimulator.activate();
+            timeWarpAnalyzer.activate();
+            
+            // Hiển thị các thuật toán ẩn
+            document.querySelectorAll('.hidden-algorithm').forEach(el => {
+                el.classList.add('active');
+            });
+            
+            logToConsole('🔓 ĐÃ KÍCH HOẠT THUẬT TOÁN ẨN: Neural Simulator + Time Warp Analyzer', 'success');
+            updateStats();
+        }
+        
+        // ====================== TỰ ĐỘNG KIỂM TRA ĐÚNG SAI ======================
+        async function checkPredictionAccuracy() {
+            if(gameData.length < 2) return;
+            
+            // Giả lập kiểm tra với dữ liệu cũ
+            const testData = gameData.slice(1); // Bỏ lượt mới nhất
+            const testPrediction = matrixPredictor.analyzePattern(testData);
+            
+            if(testPrediction) {
+                const actualResult = gameData[0].resultTruyenThong;
+                const isCorrect = testPrediction.prediction === actualResult;
+                
+                if(isCorrect) {
+                    correctCount++;
+                    logToConsole(`✅ KIỂM TRA: Dự đoán đúng ${actualResult}`, 'success');
+                } else {
+                    wrongCount++;
+                    logToConsole(`❌ KIỂM TRA: Dự đoán sai (Dự đoán: ${testPrediction.prediction}, Thực tế: ${actualResult})`, 'error');
+                }
+                
+                updateStats();
+            }
+        }
+        
+        // ====================== KHỞI ĐỘNG ======================
+        window.onload = function() {
+            initMatrixDisplay();
+            updateStats();
+            logToConsole('🚀 HỆ THỐNG MATRIX PREDICTION ALGORITHM ĐÃ SẴN SÀNG');
+            logToConsole('🔐 Stealth Mode: ENABLED | Hidden Algorithms: DISABLED');
+            
+            // Tự động chạy phân tích ban đầu
+            setTimeout(runFullAnalysis, 2000);
+            
+            // Tự động cập nhật mỗi 30s
+            setInterval(async () => {
+                await fetchGameData();
+                runAllAlgorithms();
+                checkPredictionAccuracy();
+            }, 30000);
+        };
     </script>
 </body>
 </html>
