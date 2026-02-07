@@ -437,9 +437,9 @@
         const mockServer = {
             validateKey: async (key) => {
                 // Mô phỏng delay server
-                await new Promise(resolve => setTimeout(resolve, 800));
+                await new Promise(resolve => setTimeout(resolve, 800))
                 
-                // Key hợp lệ: LC79-KITTY-2024-PRO
+                // Key hợp lệ: 
                 if (key === 'LC79-KITTY-2024-PRO') {
                     return {
                         success: true,
@@ -831,4 +831,5 @@
         });
     </script>
 </body>
+
 </html>
